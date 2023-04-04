@@ -33,13 +33,13 @@ while connected:
 				break
 			print(message)
 		else:
-			message = (sys.stdin.readline()).strip()
-			if message.strip() == "/exit":
+			send_message = (sys.stdin.readline()).strip()
+			if send_message.strip() == "/exit":
 				connected = False
 				break
-			server.send(message.encode())
+			server.send(send_message.encode())
 			sys.stdout.write("<You>")
-			sys.stdout.write(message)
+			sys.stdout.write(send_message)
 			sys.stdout.flush()
 
 server.close()
