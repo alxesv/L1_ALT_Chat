@@ -2,9 +2,14 @@ import socket
 import select
 import sys
 
-
 class Client:
+	"""This class handles the client side of the chat application"""
 	def __init__(self, ip_address, port):
+		"""Constructor for the client class
+		Arguments:
+			ip_address {str} -- The IP address of the server
+			port {int} -- The port of the server
+		"""
 		self.IP_address = ip_address
 		self.Port = port
 		self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -12,6 +17,7 @@ class Client:
 		self.connected = True
 
 	def handle_username(self):
+		"""This method handles the selection of a username and checks if it is taken"""
 		while True:
 			print("Please enter your username")
 			username = (sys.stdin.readline()).strip()
@@ -27,6 +33,7 @@ class Client:
 				print('Select a username between 3 and 20 characters')
 
 	def handle_coms(self):
+		"""This method handles the communication between the client and the server and the exit command"""
 		while self.connected:
 			sockets_list = [sys.stdin, self.server]
 			read_sockets, write_socket, error_socket = select.select(sockets_list, [], [])
@@ -48,7 +55,7 @@ class Client:
 					sys.stdout.flush()
 		self.server.close()
 
-
+# Instantiates the client class
 client = Client("127.0.0.1", 65432)
 client.handle_username()
 client.handle_coms()

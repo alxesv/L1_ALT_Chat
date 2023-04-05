@@ -3,9 +3,14 @@ import sys
 from _thread import *
 from datetime import datetime
 
-
 class Server:
+    """This class handles the server side of the chat application"""
     def __init__(self, ip_address, port):
+        """Constructor for the server class
+        Arguments:
+            ip_address {str} -- The IP address of the server
+            port {int} -- The port of the server
+        """
         self.IP_address = ip_address
         self.Port = port
         self.list_of_clients = []
@@ -16,12 +21,21 @@ class Server:
 
     @staticmethod
     def log(message):
+        """Logs messages to a file
+        Arguments:
+            message {str} -- The message to be logged
+        """
         logfile = "log.txt"
         now = datetime.now()
         with open(logfile, 'a+') as f:
             f.write(now.strftime('%d/%m/%Y %H:%M:%S') + ' - ' + message + '\n')
 
     def client_thread(self, con, username):
+        """This method handles the communication between the server and the client
+        Arguments:
+            con {socket} -- The connection to the client
+            username {str} -- The username of the client
+        """
         try:
             con.send(f"Welcome to this chatroom, {username}!".encode())
             while True:
@@ -39,6 +53,11 @@ class Server:
             return
 
     def handle_connect(self, connect, addr):
+        """This method handles the username of the client and checks if it is taken
+        Arguments:
+            connect {socket} -- The connection to the client
+            addr {str} -- The IP address of the client
+        """
         while True:
             new_username = (connect.recv(2048).decode('utf-8')).rstrip()
             name_taken = False
@@ -60,6 +79,11 @@ class Server:
                 return
 
     def broadcast(self, message, connection):
+        """This method broadcasts the message to all the clients except the sender
+        Arguments:
+            message {str} -- The message to be broadcasted
+            connection {socket} -- The connection to the client that sent the message
+        """
         for i in range(len(self.list_of_clients)):
             for clients in self.list_of_clients[i]:
                 if clients != connection:
@@ -72,6 +96,10 @@ class Server:
                         return
 
     def remove(self, connection):
+        """This method removes a client from the list of clients and removes the connection
+        Arguments:
+            connection {socket} -- The connection to the client to be removed
+        """
         for i in range(0, len(self.list_of_clients)):
             for clients in self.list_of_clients[i]:
                 if clients == connection:
@@ -83,12 +111,14 @@ class Server:
                     return
 
     def close_server(self):
+        """This method closes the server when the user types "close" in the console"""
         while True:
             if sys.stdin.readline().strip() == "close":
                 self.server.close()
                 return
 
     def start_server(self):
+        """This method starts the server and accepts new connections"""
         start_new_thread(self.close_server, ())
         while True:
             try:
@@ -97,6 +127,6 @@ class Server:
             except ConnectionAbortedError:
                 break
 
-
+# Instantiate the server class, pass the ip address and port as parameters
 chat = Server("127.0.0.1", 65432)
 chat.start_server()
