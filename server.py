@@ -48,6 +48,7 @@ class Server:
                         self.broadcast(message_to_send, con)
                     else:
                         self.remove(con)
+                        return
                 except OSError:
                     continue
         except BrokenPipeError:
