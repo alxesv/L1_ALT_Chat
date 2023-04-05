@@ -91,7 +91,7 @@ class Server:
                 if clients != connection:
                     try:
                         clients.send(message.encode())
-                    except error as e:
+                    except socket.error as e:
                         print(e)
                         clients.close()
                         self.remove(clients)
