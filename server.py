@@ -1,6 +1,6 @@
 import socket
 import sys
-from _thread import *
+import threading
 from datetime import datetime
 
 class Server:
@@ -18,6 +18,7 @@ class Server:
         self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server.bind((self.IP_address, self.Port))
         self.server.listen()
+        self.online = True
 
     @staticmethod
     def log(message):
@@ -38,7 +39,7 @@ class Server:
         """
         try:
             con.send(f"Welcome to this chatroom, {username}!".encode())
-            while True:
+            while self.online:
                 try:
                     message = ((con.recv(2048)).decode('utf_8')).rstrip()
                     if message:
@@ -58,7 +59,7 @@ class Server:
             connect {socket} -- The connection to the client
             addr {str} -- The IP address of the client
         """
-        while True:
+        while self.online:
             new_username = (connect.recv(2048).decode('utf-8')).rstrip()
             name_taken = False
             for i in range(len(self.list_of_clients)):
@@ -74,7 +75,8 @@ class Server:
                 self.list_of_clients.append({connect: new_username})
                 print(f"{new_username} connected from {addr[0]}")
                 self.log(f"user <{new_username}> logged in from {addr[0]}")
-                start_new_thread(self.client_thread, (connect, new_username))
+                client_thread = threading.Thread(target=self.client_thread, args=(connect, new_username))
+                client_thread.start()
                 self.broadcast(f"{new_username} joined the chat!", connect)
                 return
 
@@ -114,16 +116,22 @@ class Server:
         """This method closes the server when the user types "close" in the console"""
         while True:
             if sys.stdin.readline().strip() == "close":
+                for i in range(len(self.list_of_clients)):
+                    for client in self.list_of_clients[i]:
+                        client.close()
+                self.online = False
                 self.server.close()
                 return
 
     def start_server(self):
         """This method starts the server and accepts new connections"""
-        start_new_thread(self.close_server, ())
-        while True:
+        close_thread = threading.Thread(target=self.close_server)
+        close_thread.start()
+        while self.online:
             try:
                 conn, addr = self.server.accept()
-                start_new_thread(self.handle_connect, (conn, addr))
+                connect_thread = threading.Thread(target=self.handle_connect, args=(conn, addr))
+                connect_thread.start()
             except ConnectionAbortedError:
                 break
 
