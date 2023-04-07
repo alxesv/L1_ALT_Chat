@@ -72,6 +72,6 @@ class Client:
         send_thread.join()
         self.server.close()
 
-# Instantiates the client class
+# Instantiates the client class, passes the IP address and port of the server as parameters
 client = Client("127.0.0.1", 65432)
 client.start()
