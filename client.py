@@ -64,16 +64,12 @@ class Client:
     def start(self):
         """Starts the communication and send message threads"""
         self.handle_username()
-
         recv_thread = threading.Thread(target=self.recv_messages)
         send_thread = threading.Thread(target=self.send_messages)
-
         recv_thread.start()
         send_thread.start()
-
         recv_thread.join()
         send_thread.join()
-
         self.server.close()
 
 # Instantiates the client class

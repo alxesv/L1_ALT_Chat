@@ -62,6 +62,8 @@ class Server:
         """
         while self.online:
             new_username = (connect.recv(2048).decode('utf-8')).rstrip()
+            if new_username == '':
+                return
             name_taken = False
             for i in range(len(self.list_of_clients)):
                 for client in self.list_of_clients[i]:
